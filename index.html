@@ -465,6 +465,18 @@
       cursor: pointer;
     }
 
+    button.option {
+      width: 100%;
+      text-align: left;
+      color: var(--ink);
+    }
+
+    .option.selected {
+      border-color: var(--teal);
+      background: #e9f5ef;
+      box-shadow: inset 4px 0 0 var(--teal);
+    }
+
     .option input {
       width: 18px;
       height: 18px;
@@ -732,10 +744,16 @@
         </div>
       </div>
 
+      <div class="section-title">模块</div>
+      <div class="mode-switch">
+        <button id="paperModeBtn" class="mode-button active" type="button">强化套卷</button>
+        <button id="coursewareModeBtn" class="mode-button" type="button">课件重点题</button>
+      </div>
+
       <div class="section-title">章节</div>
       <div id="chapterList" class="chapter-list"></div>
 
-      <div class="section-title">套卷</div>
+      <div id="paperSectionTitle" class="section-title">套卷</div>
       <div id="paperList" class="paper-list"></div>
     </aside>
 
@@ -828,8 +846,11 @@
     const letters = ["A", "B", "C", "D"];
 
     const state = {
+      mode: "paper",
       chapterId: "c1",
       paperId: "c1-p1",
+      coursewareLevel: "all",
+      coursewareAnswers: {},
       answers: {},
       submitted: false,
       startedAt: Date.now(),
@@ -839,6 +860,9 @@
 
     const $ = (selector) => document.querySelector(selector);
     const els = {
+      paperModeBtn: $("#paperModeBtn"),
+      coursewareModeBtn: $("#coursewareModeBtn"),
+      paperSectionTitle: $("#paperSectionTitle"),
       chapterList: $("#chapterList"),
       paperList: $("#paperList"),
       questions: $("#questions"),
@@ -868,6 +892,26 @@
       return window.QUESTION_BANK.getPaper(state.paperId);
     }
 
+    function currentCoursewareItems() {
+      return window.QUESTION_BANK.courseware.questions.filter((question) => {
+        const levelOk = state.coursewareLevel === "all" || question.level === state.coursewareLevel;
+        const chapterOk = state.chapterId === "all" || question.chapterId === state.chapterId;
+        return levelOk && chapterOk;
+      });
+    }
+
+    function getCoursewareQuestion(id) {
+      return window.QUESTION_BANK.courseware.questions.find((question) => question.id === id);
+    }
+
+    function isCoursewareChoice(question) {
+      return question.options && question.options.length;
+    }
+
+    function coursewareAnswered(question) {
+      return isCoursewareChoice(question) && Boolean(state.coursewareAnswers[question.id]);
+    }
+
     function loadRecords() {
       try {
         return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
@@ -884,6 +928,9 @@
       localStorage.setItem(DRAFT_KEY, JSON.stringify({
         chapterId: state.chapterId,
         paperId: state.paperId,
+        mode: state.mode,
+        coursewareLevel: state.coursewareLevel,
+        coursewareAnswers: state.coursewareAnswers,
         answers: state.answers,
         submitted: state.submitted,
         startedAt: state.startedAt,
@@ -894,8 +941,10 @@
     function loadDraft() {
       try {
         const draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || "null");
-        if (!draft || !window.QUESTION_BANK.getPaper(draft.paperId)) return;
+        if (!draft) return;
+        if (draft.mode !== "courseware" && !window.QUESTION_BANK.getPaper(draft.paperId)) return;
         Object.assign(state, draft);
+        if (state.mode === "courseware") state.submitted = false;
         if (state.submitted) state.lastResult = gradePaper();
       } catch {
         localStorage.removeItem(DRAFT_KEY);
@@ -972,7 +1021,10 @@
     }
 
     function renderChapters() {
-      els.chapterList.innerHTML = window.QUESTION_BANK.chapters.map((chapter) => `
+      const chapters = state.mode === "courseware"
+        ? [{ id: "all", title: "全部章节", focus: "按课件题页汇总，不进入套卷" }, ...window.QUESTION_BANK.chapters]
+        : window.QUESTION_BANK.chapters;
+      els.chapterList.innerHTML = chapters.map((chapter) => `
         <button class="chapter-button ${chapter.id === state.chapterId ? "active" : ""}" type="button" data-chapter="${chapter.id}">
           <span class="chapter-name">${chapter.title}</span>
           <span class="chapter-focus">${chapter.focus}</span>
@@ -981,6 +1033,17 @@
     }
 
     function renderPapers() {
+      if (state.mode === "courseware") {
+        els.paperSectionTitle.textContent = "重点等级";
+        els.paperList.innerHTML = window.QUESTION_BANK.courseware.levels.map((level) => `
+          <button class="paper-button ${level.id === state.coursewareLevel ? "active" : ""}" type="button" data-courseware-level="${level.id}">
+            <span>${level.title}</span>
+            <span class="badge">${level.note}</span>
+          </button>
+        `).join("");
+        return;
+      }
+      els.paperSectionTitle.textContent = "套卷";
       const papers = window.QUESTION_BANK.papers.filter((paper) => paper.chapterId === state.chapterId);
       els.paperList.innerHTML = papers.map((paper) => `
         <button class="paper-button ${paper.id === state.paperId ? "active" : ""}" type="button" data-paper="${paper.id}">
@@ -1052,6 +1115,63 @@
       `;
     }
 
+    function renderCoursewareQuestion(question, index) {
+      const optionLetters = ["A", "B", "C", "D", "E", "F"];
+      const answerLetters = String(question.answer || "").split("");
+      const selectedLetters = String(state.coursewareAnswers[question.id] || "").split("");
+      const selectedAnswer = selectedLetters.join("");
+      const options = question.options && question.options.length ? `
+        <div class="options">
+          ${question.options.map((option, i) => {
+            const letter = optionLetters[i];
+            const selected = selectedLetters.includes(letter);
+            return `
+              <button class="option ${selected ? "selected" : ""}" type="button" data-courseware-choice="${question.id}" data-choice="${letter}">
+                <span class="answer-chip">${letter}</span>
+                <span>${escapeHtml(option)}</span>
+              </button>
+            `;
+          }).join("")}
+        </div>
+      ` : "";
+      const answerOptions = question.options && question.options.length
+        ? answerLetters.map((letter) => {
+          const option = question.options[optionLetters.indexOf(letter)];
+          return option ? `${letter}. ${option}` : letter;
+        }).join("；")
+        : "";
+      const screenshot = question.screenshot ? question.screenshot.replace(/\\/g, "/") : "";
+      const levelName = question.level === "high" ? "高重点" : question.level === "medium" ? "中重点" : "低/拓展";
+      const choiceResult = question.options.length && selectedAnswer
+        ? selectedAnswer === question.answer ? "回答正确" : "需要再看"
+        : "";
+      return `
+        <article class="question" id="${question.id}">
+          <div class="question-head">
+            <div class="q-index">${index + 1}</div>
+            <div class="q-type">${question.typeName}</div>
+            <div class="q-score">${levelName} · ${question.score} 分</div>
+          </div>
+          <div class="question-body">
+            <div class="courseware-meta">
+              <span class="type-pill">${escapeHtml(question.chapterTitle)} 第 ${question.page} 页</span>
+              <span class="type-pill">${escapeHtml(question.source)}</span>
+            </div>
+            <div class="stem">${escapeHtml(question.stem)}</div>
+            ${options}
+            <button class="small-button" type="button" data-courseware-answer="${question.id}" style="margin-top:12px;">显示答案</button>
+            <div class="feedback good" data-courseware-answer-panel="${question.id}">
+              <div class="feedback-title">${question.options.length ? "绿色答案" : "参考答案"}：${question.answer ? escapeHtml(question.answer) : "筛选文件未给出，需按课件核对"}</div>
+              ${question.options.length ? `<div>你的选择：${selectedAnswer ? escapeHtml(selectedAnswer) : "未选择"}${choiceResult ? ` · ${choiceResult}` : ""}</div>` : ""}
+              ${answerOptions ? `<div>${escapeHtml(answerOptions)}</div>` : ""}
+              <p class="sub">${escapeHtml(question.focus)}</p>
+              ${screenshot ? `<p class="courseware-note">截图：<a class="source-link" href="${escapeAttr(screenshot)}" target="_blank" rel="noopener">${escapeHtml(question.screenshot)}</a></p>` : ""}
+            </div>
+          </div>
+        </article>
+      `;
+    }
+
     function renderAnswerBlock(question) {
       if (question.type === "short") {
         return `
@@ -1080,7 +1200,31 @@
       renderBest();
     }
 
+    function renderCourseware() {
+      const items = currentCoursewareItems();
+      const level = window.QUESTION_BANK.courseware.levels.find((item) => item.id === state.coursewareLevel);
+      const chapter = state.chapterId === "all"
+        ? { title: "全部章节" }
+        : window.QUESTION_BANK.chapters.find((item) => item.id === state.chapterId);
+      els.paperTitle.textContent = "课件重点题";
+      els.paperMeta.textContent = `${chapter.title} · ${level.title} · ${items.length} 题 · 数据源 ${window.QUESTION_BANK.courseware.source}`;
+      els.focusText.textContent = "本模块按课件题页和复习重点筛选展示，不参与套卷随机生成；选择题答案来自截图绿色选项，填空题答案按课程知识补充，空缺项需回看截图核对。";
+      els.questions.innerHTML = items.length
+        ? items.map(renderCoursewareQuestion).join("")
+        : `<div class="empty">当前筛选下没有课件题。</div>`;
+      renderProgress();
+      renderBest();
+    }
+
     function renderProgress() {
+      if (state.mode === "courseware") {
+        const count = currentCoursewareItems().length;
+        els.progressText.textContent = `${count}题`;
+        els.progressBar.style.width = count ? "100%" : "0%";
+        els.scoreText.textContent = "--";
+        els.scoreText.className = "metric-value";
+        return;
+      }
       const paper = currentPaper();
       const answered = paper.questions.filter(questionAnswered).length;
       const total = paper.questions.length;
@@ -1096,6 +1240,11 @@
     }
 
     function renderBest() {
+      if (state.mode === "courseware") {
+        els.bestText.textContent = "--";
+        els.bestText.className = "metric-value";
+        return;
+      }
       const records = loadRecords().filter((record) => record.paperId === state.paperId);
       if (!records.length) {
         els.bestText.textContent = "--";
@@ -1132,6 +1281,10 @@
     }
 
     function handleSubmit() {
+      if (state.mode === "courseware") {
+        showToast("课件重点题模块用于独立背诵，不参与交卷评分。");
+        return;
+      }
       if (state.submitted) {
         showToast("本卷已交卷。点击“重新答题”可再次记录一次成绩。");
         return;
@@ -1166,6 +1319,10 @@
     }
 
     function resetPaper(keepPaper = true) {
+      if (state.mode === "courseware") {
+        renderAll();
+        return;
+      }
       state.answers = {};
       state.submitted = false;
       state.startedAt = Date.now();
@@ -1181,6 +1338,23 @@
     }
 
     function showAnswersOnly() {
+      if (state.mode === "courseware") {
+        const items = currentCoursewareItems();
+        els.modalTitle.textContent = "课件重点题";
+        els.modalBody.innerHTML = `
+          <div class="wrong-list">
+            ${items.map((question, index) => `
+              <div class="record-item">
+                <div class="record-line"><span>${index + 1}. ${question.chapterTitle} · 第 ${question.page} 页 · ${question.typeName}</span><span>${question.score}分</span></div>
+                <p style="margin-top:8px; font-weight:800;">${escapeHtml(question.stem)}</p>
+                <div style="margin-top:8px;">${question.options.length ? "绿色答案" : "参考答案"}：${question.answer ? escapeHtml(question.answer) : "筛选文件未给出，需按课件核对"}</div>
+              </div>
+            `).join("")}
+          </div>
+        `;
+        openModal();
+        return;
+      }
       const paper = currentPaper();
       els.modalTitle.textContent = `${paper.title} 答案`;
       els.modalBody.innerHTML = `
@@ -1272,9 +1446,17 @@
     }
 
     function renderAll() {
+      els.paperModeBtn.classList.toggle("active", state.mode === "paper");
+      els.coursewareModeBtn.classList.toggle("active", state.mode === "courseware");
+      const coursewareMode = state.mode === "courseware";
+      els.submitBtn.disabled = coursewareMode;
+      els.redoBtn.disabled = coursewareMode;
+      els.wrongBtn.disabled = coursewareMode;
+      els.showAnswersBtn.textContent = coursewareMode ? "显示全部答案" : "只看本卷答案";
       renderChapters();
       renderPapers();
-      renderPaper();
+      if (state.mode === "courseware") renderCourseware();
+      else renderPaper();
       renderRecords();
     }
 
@@ -1294,9 +1476,31 @@
       const chapterBtn = event.target.closest("[data-chapter]");
       if (chapterBtn) {
         state.chapterId = chapterBtn.dataset.chapter;
-        const firstPaper = window.QUESTION_BANK.papers.find((paper) => paper.chapterId === state.chapterId);
-        state.paperId = firstPaper.id;
-        resetPaper(true);
+        if (state.mode === "paper") {
+          const firstPaper = window.QUESTION_BANK.papers.find((paper) => paper.chapterId === state.chapterId);
+          state.paperId = firstPaper.id;
+          resetPaper(true);
+        } else {
+          saveDraft();
+          renderAll();
+        }
+        return;
+      }
+
+      const levelBtn = event.target.closest("[data-courseware-level]");
+      if (levelBtn) {
+        state.coursewareLevel = levelBtn.dataset.coursewareLevel;
+        saveDraft();
+        renderAll();
+        return;
+      }
+
+      const coursewareAnswerBtn = event.target.closest("[data-courseware-answer]");
+      if (coursewareAnswerBtn) {
+        const id = coursewareAnswerBtn.dataset.coursewareAnswer;
+        const panel = document.querySelector(`[data-courseware-answer-panel="${id}"]`);
+        const showing = panel && panel.classList.toggle("show");
+        coursewareAnswerBtn.textContent = showing ? "隐藏答案" : "显示答案";
         return;
       }
 
@@ -1315,6 +1519,26 @@
         closeModal();
         resetPaper(true);
       }
+    });
+
+    els.paperModeBtn.addEventListener("click", () => {
+      state.mode = "paper";
+      if (state.chapterId === "all") state.chapterId = "c1";
+      if (!window.QUESTION_BANK.getPaper(state.paperId) || window.QUESTION_BANK.getPaper(state.paperId).chapterId !== state.chapterId) {
+        const firstPaper = window.QUESTION_BANK.papers.find((paper) => paper.chapterId === state.chapterId);
+        state.paperId = firstPaper.id;
+      }
+      saveDraft();
+      renderAll();
+    });
+
+    els.coursewareModeBtn.addEventListener("click", () => {
+      state.mode = "courseware";
+      state.chapterId = "all";
+      state.submitted = false;
+      state.lastResult = null;
+      saveDraft();
+      renderAll();
     });
 
     els.questions.addEventListener("input", (event) => {
