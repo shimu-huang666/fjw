@@ -1,0 +1,1321 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>光电检测技术题海强化</title>
+  <style>
+    :root {
+      --paper: #f6f1e8;
+      --ink: #1f2522;
+      --muted: #6c756f;
+      --line: #d7ccba;
+      --panel: #fffaf1;
+      --field: #fffdf8;
+      --teal: #006d66;
+      --teal-2: #0b8f84;
+      --amber: #d9902f;
+      --red: #b64235;
+      --green: #2d7b54;
+      --black: #141715;
+      --shadow: 0 18px 60px rgba(36, 31, 22, .14);
+      --radius: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(0, 109, 102, .05) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(0, 109, 102, .04) 1px, transparent 1px),
+        radial-gradient(circle at 20% 10%, rgba(217, 144, 47, .18), transparent 24rem),
+        var(--paper);
+      background-size: 28px 28px, 28px 28px, auto, auto;
+      font-family: "Microsoft YaHei", "Noto Sans CJK SC", "PingFang SC", sans-serif;
+      line-height: 1.55;
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 320px 1fr;
+    }
+
+    .side {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 22px;
+      border-right: 1px solid var(--line);
+      background: rgba(255, 250, 241, .9);
+      backdrop-filter: blur(12px);
+      overflow: auto;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      color: var(--panel);
+      background: var(--black);
+      border-radius: 50%;
+      font-weight: 900;
+      letter-spacing: 0;
+      box-shadow: inset 0 0 0 3px var(--amber);
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      font-size: 22px;
+      letter-spacing: 0;
+      line-height: 1.15;
+    }
+
+    .sub {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 4px;
+    }
+
+    .section-title {
+      margin: 20px 0 10px;
+      font-size: 13px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .chapter-list,
+    .paper-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .chapter-button,
+    .paper-button,
+    .ghost-button,
+    .primary-button,
+    .danger-button,
+    .small-button {
+      border-radius: var(--radius);
+      transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+
+    .chapter-button,
+    .paper-button {
+      width: 100%;
+      padding: 11px 12px;
+      text-align: left;
+      border: 1px solid var(--line);
+      background: var(--field);
+      color: var(--ink);
+    }
+
+    .chapter-button:hover,
+    .paper-button:hover,
+    .ghost-button:hover,
+    .primary-button:hover,
+    .danger-button:hover,
+    .small-button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 20px rgba(36, 31, 22, .12);
+    }
+
+    .chapter-button.active,
+    .paper-button.active {
+      border-color: var(--teal);
+      background: #e9f5ef;
+      box-shadow: inset 4px 0 0 var(--teal);
+    }
+
+    .chapter-name {
+      display: block;
+      font-weight: 800;
+      font-size: 14px;
+    }
+
+    .chapter-focus {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .paper-button {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 34px;
+      height: 24px;
+      padding: 0 8px;
+      border-radius: 999px;
+      background: var(--black);
+      color: #fffaf1;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .main {
+      min-width: 0;
+      padding: 26px;
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 18px;
+      align-items: start;
+      margin-bottom: 18px;
+    }
+
+    .hero-title {
+      font-size: clamp(28px, 5vw, 56px);
+      line-height: .98;
+      letter-spacing: 0;
+      max-width: 900px;
+    }
+
+    .hero-title span {
+      color: var(--teal);
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .primary-button,
+    .ghost-button,
+    .danger-button,
+    .small-button {
+      min-height: 38px;
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      background: var(--field);
+      color: var(--ink);
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .primary-button {
+      background: var(--teal);
+      color: #fff;
+      border-color: var(--teal);
+    }
+
+    .danger-button {
+      background: #fff3ef;
+      color: var(--red);
+      border-color: #e7b5ac;
+    }
+
+    .small-button {
+      min-height: 30px;
+      padding: 5px 9px;
+      font-size: 12px;
+    }
+
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .metric {
+      padding: 14px;
+      background: rgba(255, 250, 241, .86);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: 0 8px 30px rgba(36, 31, 22, .07);
+    }
+
+    .metric-label {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .metric-value {
+      margin-top: 4px;
+      font-size: 24px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .exam-shell {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 300px;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .paper-panel,
+    .record-panel,
+    .review-panel {
+      background: rgba(255, 250, 241, .92);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .paper-head {
+      padding: 18px;
+      border-bottom: 1px solid var(--line);
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .paper-head h2 {
+      font-size: 24px;
+      line-height: 1.2;
+    }
+
+    .type-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .type-pill {
+      padding: 4px 8px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--field);
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .progress {
+      height: 10px;
+      background: #e7ddcc;
+      overflow: hidden;
+      border-radius: 999px;
+      min-width: 160px;
+    }
+
+    .progress > div {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--teal), var(--amber));
+      transition: width .2s ease;
+    }
+
+    .questions {
+      padding: 18px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .question {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--field);
+      overflow: hidden;
+    }
+
+    .question-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px;
+      background: #f2eadb;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .q-index {
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--black);
+      color: #fff;
+      font-weight: 900;
+      flex: 0 0 auto;
+    }
+
+    .q-type {
+      color: var(--teal);
+      font-weight: 900;
+      font-size: 13px;
+      flex: 0 0 auto;
+    }
+
+    .q-score {
+      margin-left: auto;
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .question-body {
+      padding: 14px;
+    }
+
+    .stem {
+      font-size: 16px;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    .options {
+      display: grid;
+      gap: 8px;
+    }
+
+    .option {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 10px;
+      align-items: center;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fffefa;
+      cursor: pointer;
+    }
+
+    .option input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--teal);
+    }
+
+    .answer-input,
+    .answer-area {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: #fffefa;
+      color: var(--ink);
+      border-radius: var(--radius);
+      padding: 10px 12px;
+      outline: none;
+    }
+
+    .answer-input:focus,
+    .answer-area:focus {
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px rgba(0, 109, 102, .12);
+    }
+
+    .answer-area {
+      min-height: 98px;
+      resize: vertical;
+    }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 10px;
+    }
+
+    .feedback {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      background: #f7f0e4;
+      display: none;
+    }
+
+    .feedback.show {
+      display: block;
+    }
+
+    .feedback.good {
+      border-color: #9ccfb0;
+      background: #eef9f1;
+    }
+
+    .feedback.bad {
+      border-color: #e3aaa0;
+      background: #fff2ee;
+    }
+
+    .feedback-title {
+      font-weight: 900;
+      margin-bottom: 6px;
+    }
+
+    .point-list {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+
+    .point-list li {
+      margin: 3px 0;
+    }
+
+    .right-col {
+      display: grid;
+      gap: 18px;
+    }
+
+    .record-panel,
+    .review-panel {
+      padding: 16px;
+    }
+
+    .record-panel h3,
+    .review-panel h3 {
+      font-size: 18px;
+      margin-bottom: 12px;
+    }
+
+    .record-list {
+      display: grid;
+      gap: 8px;
+      max-height: 420px;
+      overflow: auto;
+    }
+
+    .record-item {
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--field);
+    }
+
+    .record-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      font-weight: 900;
+    }
+
+    .record-meta {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .score-good {
+      color: var(--green);
+    }
+
+    .score-mid {
+      color: var(--amber);
+    }
+
+    .score-bad {
+      color: var(--red);
+    }
+
+    .empty {
+      padding: 18px;
+      border: 1px dashed var(--line);
+      border-radius: var(--radius);
+      color: var(--muted);
+      background: rgba(255, 253, 248, .72);
+      text-align: center;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 22px;
+      transform: translateX(-50%) translateY(20px);
+      padding: 10px 14px;
+      background: var(--black);
+      color: #fff;
+      border-radius: 999px;
+      box-shadow: var(--shadow);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s ease, transform .2s ease;
+      z-index: 20;
+      max-width: min(680px, calc(100vw - 28px));
+      text-align: center;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      background: rgba(20, 23, 21, .55);
+      z-index: 30;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-box {
+      width: min(860px, 100%);
+      max-height: 86vh;
+      overflow: auto;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .wrong-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .kbd {
+      font-family: Consolas, "Microsoft YaHei", monospace;
+      padding: 2px 6px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--field);
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    @media (max-width: 1080px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      .side {
+        position: static;
+        height: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .chapter-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .exam-shell {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .main,
+      .side {
+        padding: 16px;
+      }
+
+      .topbar,
+      .paper-head,
+      .calc-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .toolbar {
+        justify-content: flex-start;
+      }
+
+      .status-grid,
+      .chapter-list {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-title {
+        font-size: 34px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="side">
+      <div class="brand">
+        <div class="brand-mark">OE</div>
+        <div>
+          <h1>光电检测题海</h1>
+          <p class="sub">选择、填空、简答、计算四类题强化</p>
+        </div>
+      </div>
+
+      <div class="section-title">章节</div>
+      <div id="chapterList" class="chapter-list"></div>
+
+      <div class="section-title">套卷</div>
+      <div id="paperList" class="paper-list"></div>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div>
+          <h2 class="hero-title">按老师出题方式，做<span>高重复强化</span>。</h2>
+          <p class="sub">本地记录每次成绩；交卷后自动校对答案，错题可集中回看和重做。</p>
+        </div>
+        <div class="toolbar">
+          <button id="redoBtn" class="ghost-button" type="button">重新答题</button>
+          <button id="wrongBtn" class="ghost-button" type="button">错题回看</button>
+          <button id="submitBtn" class="primary-button" type="button">交卷校对</button>
+        </div>
+      </div>
+
+      <section class="status-grid">
+        <div class="metric">
+          <div class="metric-label">当前进度</div>
+          <div id="progressText" class="metric-value">0/0</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">计时</div>
+          <div id="timerText" class="metric-value">00:00</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">本次得分</div>
+          <div id="scoreText" class="metric-value">--</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">历史最高</div>
+          <div id="bestText" class="metric-value">--</div>
+        </div>
+      </section>
+
+      <div class="exam-shell">
+        <section class="paper-panel">
+          <div class="paper-head">
+            <div>
+              <h2 id="paperTitle">加载中</h2>
+              <p id="paperMeta" class="sub"></p>
+              <div class="type-strip">
+                <span class="type-pill">选择题</span>
+                <span class="type-pill">填空题</span>
+                <span class="type-pill">简答题</span>
+                <span class="type-pill">计算题</span>
+              </div>
+            </div>
+            <div class="progress" aria-label="答题进度"><div id="progressBar"></div></div>
+          </div>
+          <div id="questions" class="questions"></div>
+        </section>
+
+        <aside class="right-col">
+          <section class="review-panel">
+            <h3>复习重点</h3>
+            <p id="focusText" class="sub"></p>
+            <div style="margin-top:12px; display:grid; gap:8px;">
+              <button id="showAnswersBtn" class="small-button" type="button">只看本卷答案</button>
+              <button id="exportBtn" class="small-button" type="button">导出成绩记录</button>
+              <button id="clearBtn" class="danger-button" type="button">清空本地记录</button>
+            </div>
+          </section>
+
+          <section class="record-panel">
+            <h3>成绩记录</h3>
+            <div id="recordList" class="record-list"></div>
+          </section>
+        </aside>
+      </div>
+    </main>
+  </div>
+
+  <div id="modal" class="modal" role="dialog" aria-modal="true">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h3 id="modalTitle">错题回看</h3>
+        <button id="closeModalBtn" class="small-button" type="button">关闭</button>
+      </div>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script src="question-bank.js"></script>
+  <script>
+    const STORAGE_KEY = "photoelectric_exam_records_v2";
+    const DRAFT_KEY = "photoelectric_exam_draft_v2";
+    const letters = ["A", "B", "C", "D"];
+
+    const state = {
+      chapterId: "c1",
+      paperId: "c1-p1",
+      answers: {},
+      submitted: false,
+      startedAt: Date.now(),
+      elapsedBefore: 0,
+      lastResult: null
+    };
+
+    const $ = (selector) => document.querySelector(selector);
+    const els = {
+      chapterList: $("#chapterList"),
+      paperList: $("#paperList"),
+      questions: $("#questions"),
+      paperTitle: $("#paperTitle"),
+      paperMeta: $("#paperMeta"),
+      focusText: $("#focusText"),
+      progressText: $("#progressText"),
+      timerText: $("#timerText"),
+      scoreText: $("#scoreText"),
+      bestText: $("#bestText"),
+      progressBar: $("#progressBar"),
+      recordList: $("#recordList"),
+      submitBtn: $("#submitBtn"),
+      redoBtn: $("#redoBtn"),
+      wrongBtn: $("#wrongBtn"),
+      showAnswersBtn: $("#showAnswersBtn"),
+      exportBtn: $("#exportBtn"),
+      clearBtn: $("#clearBtn"),
+      modal: $("#modal"),
+      modalTitle: $("#modalTitle"),
+      modalBody: $("#modalBody"),
+      closeModalBtn: $("#closeModalBtn"),
+      toast: $("#toast")
+    };
+
+    function currentPaper() {
+      return window.QUESTION_BANK.getPaper(state.paperId);
+    }
+
+    function loadRecords() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+      } catch {
+        return [];
+      }
+    }
+
+    function saveRecords(records) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+    }
+
+    function saveDraft() {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify({
+        chapterId: state.chapterId,
+        paperId: state.paperId,
+        answers: state.answers,
+        submitted: state.submitted,
+        startedAt: state.startedAt,
+        elapsedBefore: state.elapsedBefore
+      }));
+    }
+
+    function loadDraft() {
+      try {
+        const draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || "null");
+        if (!draft || !window.QUESTION_BANK.getPaper(draft.paperId)) return;
+        Object.assign(state, draft);
+        if (state.submitted) state.lastResult = gradePaper();
+      } catch {
+        localStorage.removeItem(DRAFT_KEY);
+      }
+    }
+
+    function normalize(value) {
+      return String(value || "")
+        .toLowerCase()
+        .replace(/\s+/g, "")
+        .replace(/[，。；：、（）【】]/g, "")
+        .replace(/[,. ;:()[\]]/g, "");
+    }
+
+    function extractNumber(value) {
+      const match = String(value || "").replace(/，/g, ".").match(/[-+]?\d*\.?\d+(?:e[-+]?\d+)?/i);
+      return match ? Number(match[0]) : NaN;
+    }
+
+    function scoreQuestion(question, answer) {
+      if (question.type === "choice") {
+        const correct = answer === question.answer;
+        return { earned: correct ? question.score : 0, correct, detail: `正确答案：${question.answer}` };
+      }
+
+      if (question.type === "fill") {
+        const value = normalize(answer);
+        const acceptable = [question.answer, ...(question.acceptable || [])].map(normalize);
+        const correct = acceptable.some((item) => value === item || (item.length > 1 && value.includes(item)));
+        return { earned: correct ? question.score : 0, correct, detail: `参考答案：${question.answer}` };
+      }
+
+      if (question.type === "calc") {
+        const value = extractNumber(answer && answer.final);
+        const diff = Math.abs(value - question.numericAnswer);
+        const correct = Number.isFinite(value) && diff <= question.tolerance;
+        return { earned: correct ? question.score : 0, correct, detail: `参考答案：${question.answer}` };
+      }
+
+      const text = normalize(answer);
+      const hits = (question.keywords || []).filter((keyword) => text.includes(normalize(keyword))).length;
+      const ratio = question.keywords && question.keywords.length ? hits / question.keywords.length : 0;
+      const earned = ratio >= 0.6 ? question.score : ratio >= 0.28 ? Math.round(question.score * 0.5) : 0;
+      return {
+        earned,
+        correct: earned === question.score,
+        partial: earned > 0 && earned < question.score,
+        detail: `关键词命中 ${hits}/${(question.keywords || []).length}`
+      };
+    }
+
+    function gradePaper() {
+      const paper = currentPaper();
+      const items = paper.questions.map((question) => {
+        const answer = state.answers[question.id];
+        const result = scoreQuestion(question, answer);
+        return { question, answer, ...result };
+      });
+      const earned = items.reduce((sum, item) => sum + item.earned, 0);
+      const total = paper.totalScore;
+      return {
+        items,
+        earned,
+        total,
+        percent: Math.round((earned / total) * 100),
+        wrongIds: items.filter((item) => item.earned < item.question.score).map((item) => item.question.id),
+        byType: Object.fromEntries(["choice", "fill", "short", "calc"].map((type) => {
+          const typeItems = items.filter((item) => item.question.type === type);
+          const got = typeItems.reduce((sum, item) => sum + item.earned, 0);
+          const max = typeItems.reduce((sum, item) => sum + item.question.score, 0);
+          return [type, { got, max }];
+        }))
+      };
+    }
+
+    function renderChapters() {
+      els.chapterList.innerHTML = window.QUESTION_BANK.chapters.map((chapter) => `
+        <button class="chapter-button ${chapter.id === state.chapterId ? "active" : ""}" type="button" data-chapter="${chapter.id}">
+          <span class="chapter-name">${chapter.title}</span>
+          <span class="chapter-focus">${chapter.focus}</span>
+        </button>
+      `).join("");
+    }
+
+    function renderPapers() {
+      const papers = window.QUESTION_BANK.papers.filter((paper) => paper.chapterId === state.chapterId);
+      els.paperList.innerHTML = papers.map((paper) => `
+        <button class="paper-button ${paper.id === state.paperId ? "active" : ""}" type="button" data-paper="${paper.id}">
+          <span>第${paper.paperNo}套强化卷</span>
+          <span class="badge">${paper.totalScore}</span>
+        </button>
+      `).join("");
+    }
+
+    function questionAnswered(question) {
+      const answer = state.answers[question.id];
+      if (question.type === "calc") return Boolean(answer && String(answer.final || "").trim());
+      return Boolean(String(answer || "").trim());
+    }
+
+    function renderQuestion(question, index) {
+      const answer = state.answers[question.id];
+      const disabled = state.submitted ? "disabled" : "";
+      const result = state.submitted ? scoreQuestion(question, answer) : null;
+      const feedbackClass = result ? result.earned === question.score ? "good" : "bad" : "";
+      const feedbackTitle = result ? result.earned === question.score ? "已掌握" : result.earned > 0 ? "部分掌握" : "需要重做" : "";
+
+      let inputHtml = "";
+      if (question.type === "choice") {
+        inputHtml = `<div class="options">${question.options.map((option, i) => {
+          const letter = letters[i];
+          return `
+            <label class="option">
+              <input type="radio" name="${question.id}" value="${letter}" ${answer === letter ? "checked" : ""} ${disabled}>
+              <span><strong>${letter}.</strong> ${option}</span>
+            </label>
+          `;
+        }).join("")}</div>`;
+      } else if (question.type === "fill") {
+        inputHtml = `<input class="answer-input" data-answer="${question.id}" value="${escapeAttr(answer || "")}" placeholder="填写关键词或公式" ${disabled}>`;
+      } else if (question.type === "calc") {
+        inputHtml = `
+          <div class="calc-grid">
+            <input class="answer-input" data-calc-final="${question.id}" value="${escapeAttr((answer && answer.final) || "")}" placeholder="最终数值，如 3.75" ${disabled}>
+            <input class="answer-input" value="${question.unit || "无单位"}" disabled aria-label="单位">
+          </div>
+          <textarea class="answer-area" data-calc-work="${question.id}" placeholder="可写计算过程，交卷后对照参考步骤" ${disabled}>${escapeHtml((answer && answer.work) || "")}</textarea>
+        `;
+      } else {
+        inputHtml = `<textarea class="answer-area" data-answer="${question.id}" placeholder="按“定义-原理-应用/特点”写要点" ${disabled}>${escapeHtml(answer || "")}</textarea>`;
+      }
+
+      const feedback = state.submitted ? `
+        <div class="feedback show ${feedbackClass}">
+          <div class="feedback-title">${feedbackTitle}：${result.earned}/${question.score} 分</div>
+          ${renderAnswerBlock(question)}
+          <p class="sub" style="margin-top:8px;">${result.detail}</p>
+        </div>
+      ` : `<div class="feedback"></div>`;
+
+      return `
+        <article class="question" id="${question.id}">
+          <div class="question-head">
+            <div class="q-index">${index + 1}</div>
+            <div class="q-type">${question.typeName}</div>
+            <div class="q-score">${question.score} 分</div>
+          </div>
+          <div class="question-body">
+            <div class="stem">${question.stem}</div>
+            ${inputHtml}
+            ${feedback}
+          </div>
+        </article>
+      `;
+    }
+
+    function renderAnswerBlock(question) {
+      if (question.type === "short") {
+        return `
+          <div>参考要点：</div>
+          <ul class="point-list">${question.points.map((point) => `<li>${point}</li>`).join("")}</ul>
+          ${question.explanation ? `<p class="sub" style="margin-top:8px;">${question.explanation}</p>` : ""}
+        `;
+      }
+      if (question.type === "calc") {
+        return `<div>参考步骤：${question.solution}</div>`;
+      }
+      if (question.type === "choice") {
+        const idx = letters.indexOf(question.answer);
+        return `<div>正确答案：${question.answer}. ${question.options[idx]}</div><p class="sub" style="margin-top:8px;">${question.explanation}</p>`;
+      }
+      return `<div>参考答案：${question.answer}</div><p class="sub" style="margin-top:8px;">${question.explanation}</p>`;
+    }
+
+    function renderPaper() {
+      const paper = currentPaper();
+      els.paperTitle.textContent = paper.title;
+      els.paperMeta.textContent = `重点等级 ${paper.weight} · ${paper.questions.length} 题 · ${paper.totalScore} 分 · 建议 ${paper.estimatedMinutes} 分钟`;
+      els.focusText.textContent = paper.focus;
+      els.questions.innerHTML = paper.questions.map(renderQuestion).join("");
+      renderProgress();
+      renderBest();
+    }
+
+    function renderProgress() {
+      const paper = currentPaper();
+      const answered = paper.questions.filter(questionAnswered).length;
+      const total = paper.questions.length;
+      els.progressText.textContent = `${answered}/${total}`;
+      els.progressBar.style.width = `${total ? (answered / total) * 100 : 0}%`;
+      if (state.submitted && state.lastResult) {
+        els.scoreText.textContent = `${state.lastResult.earned}/${state.lastResult.total}`;
+        els.scoreText.className = `metric-value ${scoreClass(state.lastResult.percent)}`;
+      } else {
+        els.scoreText.textContent = "--";
+        els.scoreText.className = "metric-value";
+      }
+    }
+
+    function renderBest() {
+      const records = loadRecords().filter((record) => record.paperId === state.paperId);
+      if (!records.length) {
+        els.bestText.textContent = "--";
+        els.bestText.className = "metric-value";
+        return;
+      }
+      const best = records.reduce((max, record) => record.percent > max.percent ? record : max, records[0]);
+      els.bestText.textContent = `${best.percent}%`;
+      els.bestText.className = `metric-value ${scoreClass(best.percent)}`;
+    }
+
+    function renderRecords() {
+      const records = loadRecords().slice().reverse();
+      if (!records.length) {
+        els.recordList.innerHTML = `<div class="empty">暂无成绩。交卷后会自动保存。</div>`;
+        return;
+      }
+      els.recordList.innerHTML = records.map((record) => `
+        <div class="record-item">
+          <div class="record-line">
+            <span>${record.chapterTitle}</span>
+            <span class="${scoreClass(record.percent)}">${record.percent}%</span>
+          </div>
+          <div class="record-meta">${record.paperTitle.replace(record.chapterTitle + " ", "")} · ${record.earned}/${record.total} 分 · ${record.wrongIds.length} 道需重做</div>
+          <div class="record-meta">${new Date(record.createdAt).toLocaleString("zh-CN")}</div>
+        </div>
+      `).join("");
+    }
+
+    function scoreClass(percent) {
+      if (percent >= 80) return "score-good";
+      if (percent >= 60) return "score-mid";
+      return "score-bad";
+    }
+
+    function handleSubmit() {
+      if (state.submitted) {
+        showToast("本卷已交卷。点击“重新答题”可再次记录一次成绩。");
+        return;
+      }
+      const paper = currentPaper();
+      const unanswered = paper.questions.filter((question) => !questionAnswered(question)).length;
+      if (unanswered && !confirm(`还有 ${unanswered} 道题未作答，确定交卷吗？`)) return;
+
+      state.submitted = true;
+      state.lastResult = gradePaper();
+      const record = {
+        id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        createdAt: new Date().toISOString(),
+        chapterId: paper.chapterId,
+        chapterTitle: paper.chapterTitle,
+        paperId: paper.id,
+        paperTitle: paper.title,
+        earned: state.lastResult.earned,
+        total: state.lastResult.total,
+        percent: state.lastResult.percent,
+        byType: state.lastResult.byType,
+        wrongIds: state.lastResult.wrongIds,
+        answers: state.answers,
+        seconds: getElapsedSeconds()
+      };
+      const records = loadRecords();
+      records.push(record);
+      saveRecords(records);
+      saveDraft();
+      renderAll();
+      showToast(`已交卷：${record.earned}/${record.total} 分，错题 ${record.wrongIds.length} 道。`);
+    }
+
+    function resetPaper(keepPaper = true) {
+      state.answers = {};
+      state.submitted = false;
+      state.startedAt = Date.now();
+      state.elapsedBefore = 0;
+      state.lastResult = null;
+      if (!keepPaper) {
+        const firstPaper = window.QUESTION_BANK.papers.find((paper) => paper.chapterId === state.chapterId);
+        state.paperId = firstPaper.id;
+      }
+      saveDraft();
+      renderAll();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function showAnswersOnly() {
+      const paper = currentPaper();
+      els.modalTitle.textContent = `${paper.title} 答案`;
+      els.modalBody.innerHTML = `
+        <div class="wrong-list">
+          ${paper.questions.map((question, index) => `
+            <div class="record-item">
+              <div class="record-line"><span>${index + 1}. ${question.typeName}</span><span>${question.score}分</span></div>
+              <p style="margin-top:8px; font-weight:800;">${question.stem}</p>
+              <div style="margin-top:8px;">${renderAnswerBlock(question)}</div>
+            </div>
+          `).join("")}
+        </div>
+      `;
+      openModal();
+    }
+
+    function showWrongReview() {
+      const records = loadRecords();
+      const wrongIds = [...new Set(records.flatMap((record) => record.wrongIds || []))];
+      const wrongQuestions = wrongIds.map((id) => window.QUESTION_BANK.getQuestion(id)).filter(Boolean);
+      els.modalTitle.textContent = "错题回看";
+      if (!wrongQuestions.length) {
+        els.modalBody.innerHTML = `<div class="empty">还没有错题记录。先完成一套卷。</div>`;
+        openModal();
+        return;
+      }
+      els.modalBody.innerHTML = `
+        <p class="sub" style="margin-bottom:12px;">共 ${wrongQuestions.length} 道历史错题。建议先看参考要点，再回到对应章节重新答题。</p>
+        <div class="wrong-list">
+          ${wrongQuestions.map((question, index) => `
+            <div class="record-item">
+              <div class="record-line">
+                <span>${index + 1}. ${question.chapterTitle} · 第${question.paperNo}套 · ${question.typeName}</span>
+                <button class="small-button" type="button" data-jump="${question.chapterId}" data-paper="${question.chapterId}-p${question.paperNo}" data-close="1">重做本套</button>
+              </div>
+              <p style="margin-top:8px; font-weight:800;">${question.stem}</p>
+              <div style="margin-top:8px;">${renderAnswerBlock(question)}</div>
+            </div>
+          `).join("")}
+        </div>
+      `;
+      openModal();
+    }
+
+    function exportRecords() {
+      const records = loadRecords();
+      const payload = JSON.stringify(records, null, 2);
+      navigator.clipboard?.writeText(payload).then(() => {
+        showToast("成绩记录 JSON 已复制到剪贴板。");
+      }).catch(() => {
+        els.modalTitle.textContent = "成绩记录 JSON";
+        els.modalBody.innerHTML = `<textarea class="answer-area" style="min-height:360px;">${escapeHtml(payload)}</textarea>`;
+        openModal();
+      });
+    }
+
+    function clearRecords() {
+      if (!confirm("确定清空所有本地成绩记录吗？此操作不可恢复。")) return;
+      localStorage.removeItem(STORAGE_KEY);
+      renderRecords();
+      renderBest();
+      showToast("本地成绩记录已清空。");
+    }
+
+    function openModal() {
+      els.modal.classList.add("show");
+    }
+
+    function closeModal() {
+      els.modal.classList.remove("show");
+    }
+
+    function showToast(message) {
+      els.toast.textContent = message;
+      els.toast.classList.add("show");
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => els.toast.classList.remove("show"), 2400);
+    }
+
+    function getElapsedSeconds() {
+      return state.elapsedBefore + Math.floor((Date.now() - state.startedAt) / 1000);
+    }
+
+    function renderTimer() {
+      const seconds = getElapsedSeconds();
+      const min = Math.floor(seconds / 60).toString().padStart(2, "0");
+      const sec = (seconds % 60).toString().padStart(2, "0");
+      els.timerText.textContent = `${min}:${sec}`;
+    }
+
+    function renderAll() {
+      renderChapters();
+      renderPapers();
+      renderPaper();
+      renderRecords();
+    }
+
+    function escapeHtml(value) {
+      return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function escapeAttr(value) {
+      return escapeHtml(value).replace(/'/g, "&#39;");
+    }
+
+    document.addEventListener("click", (event) => {
+      const chapterBtn = event.target.closest("[data-chapter]");
+      if (chapterBtn) {
+        state.chapterId = chapterBtn.dataset.chapter;
+        const firstPaper = window.QUESTION_BANK.papers.find((paper) => paper.chapterId === state.chapterId);
+        state.paperId = firstPaper.id;
+        resetPaper(true);
+        return;
+      }
+
+      const paperBtn = event.target.closest("[data-paper]");
+      if (paperBtn && !event.target.closest("[data-jump]")) {
+        state.paperId = paperBtn.dataset.paper;
+        state.chapterId = window.QUESTION_BANK.getPaper(state.paperId).chapterId;
+        resetPaper(true);
+        return;
+      }
+
+      const jumpBtn = event.target.closest("[data-jump]");
+      if (jumpBtn) {
+        state.chapterId = jumpBtn.dataset.jump;
+        state.paperId = jumpBtn.dataset.paper;
+        closeModal();
+        resetPaper(true);
+      }
+    });
+
+    els.questions.addEventListener("input", (event) => {
+      if (state.submitted) return;
+      const radio = event.target.matches("input[type='radio']") ? event.target : null;
+      const answerInput = event.target.closest("[data-answer]");
+      const calcFinal = event.target.closest("[data-calc-final]");
+      const calcWork = event.target.closest("[data-calc-work]");
+
+      if (radio) {
+        state.answers[radio.name] = radio.value;
+      } else if (answerInput) {
+        state.answers[answerInput.dataset.answer] = answerInput.value;
+      } else if (calcFinal) {
+        const id = calcFinal.dataset.calcFinal;
+        state.answers[id] = { ...(state.answers[id] || {}), final: calcFinal.value };
+      } else if (calcWork) {
+        const id = calcWork.dataset.calcWork;
+        state.answers[id] = { ...(state.answers[id] || {}), work: calcWork.value };
+      }
+      saveDraft();
+      renderProgress();
+    });
+
+    els.submitBtn.addEventListener("click", handleSubmit);
+    els.redoBtn.addEventListener("click", () => resetPaper(true));
+    els.wrongBtn.addEventListener("click", showWrongReview);
+    els.showAnswersBtn.addEventListener("click", showAnswersOnly);
+    els.exportBtn.addEventListener("click", exportRecords);
+    els.clearBtn.addEventListener("click", clearRecords);
+    els.closeModalBtn.addEventListener("click", closeModal);
+    els.modal.addEventListener("click", (event) => {
+      if (event.target === els.modal) closeModal();
+    });
+
+    window.addEventListener("keydown", (event) => {
+      if ((event.ctrlKey || event.metaKey) && event.key === "Enter") handleSubmit();
+      if (event.key === "Escape") closeModal();
+    });
+
+    if (!window.QUESTION_BANK) {
+      document.body.innerHTML = "<p>题库数据库 question-bank.js 未加载。</p>";
+    } else {
+      loadDraft();
+      renderAll();
+      renderTimer();
+      setInterval(renderTimer, 1000);
+    }
+  </script>
+</body>
+</html>
