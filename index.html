@@ -1162,7 +1162,7 @@
             <button class="small-button" type="button" data-courseware-answer="${question.id}" style="margin-top:12px;">显示答案</button>
             <div class="feedback good" data-courseware-answer-panel="${question.id}">
               <div class="feedback-title">${question.options.length ? "绿色答案" : "参考答案"}：${question.answer ? escapeHtml(question.answer) : "筛选文件未给出，需按课件核对"}</div>
-              ${question.options.length ? `<div>你的选择：${selectedAnswer ? escapeHtml(selectedAnswer) : "未选择"}${choiceResult ? ` · ${choiceResult}` : ""}</div>` : ""}
+              ${question.options.length ? `<div data-courseware-user-answer="${question.id}">你的选择：${selectedAnswer ? escapeHtml(selectedAnswer) : "未选择"}${choiceResult ? ` · ${choiceResult}` : ""}</div>` : ""}
               ${answerOptions ? `<div>${escapeHtml(answerOptions)}</div>` : ""}
               <p class="sub">${escapeHtml(question.focus)}</p>
               ${screenshot ? `<p class="courseware-note">截图：<a class="source-link" href="${escapeAttr(screenshot)}" target="_blank" rel="noopener">${escapeHtml(question.screenshot)}</a></p>` : ""}
@@ -1218,9 +1218,11 @@
 
     function renderProgress() {
       if (state.mode === "courseware") {
-        const count = currentCoursewareItems().length;
-        els.progressText.textContent = `${count}题`;
-        els.progressBar.style.width = count ? "100%" : "0%";
+        const choiceItems = currentCoursewareItems().filter(isCoursewareChoice);
+        const answered = choiceItems.filter(coursewareAnswered).length;
+        const total = choiceItems.length;
+        els.progressText.textContent = `${answered}/${total}`;
+        els.progressBar.style.width = `${total ? (answered / total) * 100 : 0}%`;
         els.scoreText.textContent = "--";
         els.scoreText.className = "metric-value";
         return;
@@ -1492,6 +1494,40 @@
         state.coursewareLevel = levelBtn.dataset.coursewareLevel;
         saveDraft();
         renderAll();
+        return;
+      }
+
+      const coursewareChoiceBtn = event.target.closest("[data-courseware-choice]");
+      if (coursewareChoiceBtn) {
+        const id = coursewareChoiceBtn.dataset.coursewareChoice;
+        const letter = coursewareChoiceBtn.dataset.choice;
+        const question = getCoursewareQuestion(id);
+        if (!question) return;
+        const optionLetters = ["A", "B", "C", "D", "E", "F"];
+        const isMulti = question.typeName.includes("多选");
+        const selected = String(state.coursewareAnswers[id] || "").split("").filter(Boolean);
+        let next;
+        if (isMulti) {
+          next = selected.includes(letter)
+            ? selected.filter((item) => item !== letter)
+            : [...selected, letter];
+          next = next.sort((a, b) => optionLetters.indexOf(a) - optionLetters.indexOf(b)).join("");
+        } else {
+          next = letter;
+        }
+        state.coursewareAnswers[id] = next;
+        const card = coursewareChoiceBtn.closest(".question");
+        card.querySelectorAll("[data-courseware-choice]").forEach((button) => {
+          button.classList.toggle("selected", next.includes(button.dataset.choice));
+        });
+        const panel = card.querySelector(`[data-courseware-answer-panel="${id}"]`);
+        saveDraft();
+        if (panel) {
+          const userAnswer = panel.querySelector(`[data-courseware-user-answer="${id}"]`);
+          const result = next ? next === question.answer ? " · 回答正确" : " · 需要再看" : "";
+          if (userAnswer) userAnswer.textContent = `你的选择：${next || "未选择"}${result}`;
+        }
+        renderProgress();
         return;
       }
 
