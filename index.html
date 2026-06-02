@@ -1145,6 +1145,8 @@
       const choiceResult = question.options.length && selectedAnswer
         ? selectedAnswer === question.answer ? "回答正确" : "需要再看"
         : "";
+      const explanation = coursewareExplanation(question);
+      const sourceNote = coursewareSourceNote(question);
       return `
         <article class="question" id="${question.id}">
           <div class="question-head">
@@ -1164,12 +1166,21 @@
               <div class="feedback-title">${question.options.length ? "绿色答案" : "参考答案"}：${question.answer ? escapeHtml(question.answer) : "筛选文件未给出，需按课件核对"}</div>
               ${question.options.length ? `<div data-courseware-user-answer="${question.id}">你的选择：${selectedAnswer ? escapeHtml(selectedAnswer) : "未选择"}${choiceResult ? ` · ${choiceResult}` : ""}</div>` : ""}
               ${answerOptions ? `<div>${escapeHtml(answerOptions)}</div>` : ""}
-              <p class="sub">${escapeHtml(question.focus)}</p>
+              <p class="sub">解析：${escapeHtml(explanation)}</p>
+              <p class="sub">课件出处：${escapeHtml(sourceNote)}</p>
               ${screenshot ? `<p class="courseware-note">截图：<a class="source-link" href="${escapeAttr(screenshot)}" target="_blank" rel="noopener">${escapeHtml(question.screenshot)}</a></p>` : ""}
             </div>
           </div>
         </article>
       `;
+    }
+
+    function coursewareExplanation(question) {
+      return question.explanation || `本题对应课件复习重点“${question.focus}”。答题时优先按第 ${question.page} 页截图中的绿色答案或填空语境确定答案，再回到该重点理解相关概念、公式或适用条件。`;
+    }
+
+    function coursewareSourceNote(question) {
+      return question.sourceNote || `${question.source}，${question.chapterTitle}第 ${question.page} 页；重点匹配：${question.focus}。`;
     }
 
     function renderAnswerBlock(question) {
@@ -1350,6 +1361,8 @@
                 <div class="record-line"><span>${index + 1}. ${question.chapterTitle} · 第 ${question.page} 页 · ${question.typeName}</span><span>${question.score}分</span></div>
                 <p style="margin-top:8px; font-weight:800;">${escapeHtml(question.stem)}</p>
                 <div style="margin-top:8px;">${question.options.length ? "绿色答案" : "参考答案"}：${question.answer ? escapeHtml(question.answer) : "筛选文件未给出，需按课件核对"}</div>
+                <p class="sub" style="margin-top:8px;">解析：${escapeHtml(coursewareExplanation(question))}</p>
+                <p class="sub">课件出处：${escapeHtml(coursewareSourceNote(question))}</p>
               </div>
             `).join("")}
           </div>
